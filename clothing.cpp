@@ -4,97 +4,111 @@
 
 using namespace std;
 
-Clothing::Clothing(const string& category, const string& name, double price, int qty,
-const string& brand, const string& size) :
-Product("clothing", name, price, qty)
+Clothing::Clothing(const std::string category, const std::string name, double price, int qty,
+    const std::string brand, const std::string size) :
+    Product("clothing", name, price, qty)
 {
-brand_ = brand;
-size_ = size;
+    brand_ = brand;
+    size_  = size;
+} 
+
+Clothing::~Clothing()
+{
 }
 
-Clothing::~Clothing() = default;
-
-string Clothing::getBrand() const
+std::string Clothing::grabUserBrand() const
 {
-return brand_;
+    return brand_;
 }
 
-string Clothing::getSize() const
+std::string Clothing::grabUserSize() const
 {
-return size_;
+    return size_;
 }
 
-set<string> Clothing::keywords() const
+std::set<std::string> Clothing::keywords() const
 {
-set<string> clothingKeywords;
-string currWord;
+    std::set<std::string> wordsOfClothes;
+    std::string CurrentW;
+    unsigned long i = 0;
+while (i < name_.size()) {
+if ((ispunct(name_[i]) && (CurrentW.size() > 1)) || (isspace(name_[i]) && (CurrentW.size() > 1))) {
+wordsOfClothes.insert(CurrentW);
+CurrentW = "";
+}
+else if (ispunct(name_[i]) || isspace(name_[i])) {
+CurrentW = "";
+}
+else {
+CurrentW += tolower(name_[i]);
+}
+i++;
+}
 
-// adds the name keywords
-for (char c : name_) {
-    if (ispunct(c) && currWord.size() > 1 || 
-        isspace(c) && currWord.size() > 1) {
-        clothingKeywords.emplace(currWord);
-        currWord = "";
-    }  
-    else if (ispunct(c) || isspace(c)) {
-        currWord = "";
+    if (CurrentW.size() > 1) {
+        wordsOfClothes.insert(CurrentW);
+        CurrentW = "";
     }
-    else {
-        currWord += tolower(c);
+
+    for (unsigned long i = 0; i < brand_.size(); ++i) {
+        if ((ispunct(brand_[i]) && (CurrentW.size() > 1)) || 
+            (isspace(brand_[i]) && (CurrentW.size() > 1))) {
+            wordsOfClothes.insert(CurrentW);
+            CurrentW = "";
+        }  
+        else if (ispunct(brand_[i]) || isspace(brand_[i])) {
+            CurrentW = "";
+        }
+        else {
+            CurrentW += tolower(brand_[i]);
+        }
     }
-}
 
-// check if there's any leftover string that needs to be added
-if (currWord.size() > 1) {
-    clothingKeywords.emplace(currWord);
-    currWord = "";
-}
-
-// adds the brand keywords
-for (char c : brand_) {
-    if (ispunct(c) && currWord.size() > 1 || 
-        isspace(c) && currWord.size() > 1) {
-        clothingKeywords.emplace(currWord);
-        currWord = "";
-    }  
-    else if (ispunct(c) || isspace(c)) {
-        currWord = "";
+    if (CurrentW.size() > 1) {
+        wordsOfClothes.insert(CurrentW);
+        CurrentW = "";
     }
-    else {
-        currWord += tolower(c);
-    }
-}
 
-// check if there's any leftover string that needs to be added
-if (currWord.size() > 1) {
-    clothingKeywords.emplace(currWord);
-    currWord = "";
-}
-
-return clothingKeywords;
+    return wordsOfClothes;
 
 }
 
-bool Clothing::isMatch(vector<string>& searchTerms) const
+bool Clothing::CorrectItem(std::vector<std::string>& searchTerms) const
 {
-return false;
+   return false;
 }
 
-string Clothing::displayString() const
+std::string Clothing::displayString() const
 {
-ostringstream outputString;
+    std::string display;
 
-int priceDecimalPointIndex = 0;
-string priceStr = to_string(price_);
+    int LowerPoint = 0;
+    string priceStr = to_string(price_);
 
-for (size_t i = 0; i < priceStr.size(); ++i) {
-    if (priceStr[i] == '.') {
-        priceDecimalPointIndex = i;
-        break;
-    } 
+    for (unsigned long i = 0; i < priceStr.size(); ++i) {
+if (priceStr[i] == '.') {
+LowerPoint = i;
+}
 }
 
-outputString << name_ << endl;
-outputString << "Size: " << size_ << " Brand: " << brand_ << endl;
-outputString << priceStr.substr(0, priceDecimalPointIndex) 
-             << priceStr.substr(priceDecimalPointIndex, 3) << ' '
+
+ display += name_;
+    display += "\n";
+    display += "Size: " + size_ + " Brand: " + brand_;
+    display += "\n";
+    display += priceStr.substr(0, LowerPoint);
+    display += priceStr.substr(LowerPoint, 3);
+    display += ' ';
+    display += to_string(qty_);
+    display += " left.";
+
+    return display;
+}
+
+void Clothing::dump(std::ostream& os) const
+{
+    os << std::fixed;
+    os << std::setprecision(2);
+    os << category_ << "\n" << name_ << "\n" << price_ << "\n" << qty_ << endl;
+    os << size_ << "\n" << brand_ << endl;
+}

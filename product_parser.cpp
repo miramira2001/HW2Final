@@ -124,103 +124,126 @@ std::string ProductBookParser::categoryID()
 }
 
 
+/**
+ * Your job to fill in the code to create a new book product
+ * using the data members in this class and the parent ProductParser class
+ */
 Product* ProductBookParser::makeProduct()
 {
-return new Book("book", prodName_, price_, qty_, isbn_, author_);
+    Book* newProduct = new Book("book", prodName_, price_, qty_, isbn_, author_);
+    return newProduct;
 }
 
-ProductClothingParser::ProductClothingParser() = default;
+
+ProductClothingParser::ProductClothingParser()
+{
+}
 
 Product* ProductClothingParser::parseSpecificProduct(std::string category,
-std::istream& is,
-bool& error,
-std::string& errorMsg,
-int& lineno)
+        std::istream& is,
+        bool& error,
+        std::string& errorMsg,
+        int& lineno)
 {
-std::string myline;
-std::getline(is, myline);
-std::stringstream ss3(myline);
-ss3 >> size_;
-if (ss3.fail()) {
-    error = true;
-    errorMsg = "Unable to read size";
-    return nullptr;
-}
+    string myline;
+    getline(is, myline);
+    stringstream ss3(myline);
+    ss3 >> size_;
+    if(ss3.fail()) {
+        error = true;
+        errorMsg = "Unable to read size";
+        return NULL;
+    }
 
-lineno++;
-std::getline(is, brand_);
-
-if (is.fail() || (brand_.size() == 0)) {
-    error = true;
-    errorMsg = "Unable to read brand";
-    return nullptr;
-}
+    lineno++;
+    getline(is, brand_);
+    if(is.fail() || (brand_.size() == 0)) {
+        error = true;
+        errorMsg = "Unable to read brand";
+        return NULL;
+    }
 #ifdef DEBUG
-std::cout << "Making product " << prodName_ << std::endl;
+    cout << "Making product " << prodName_ << endl;
 #endif
-lineno++;
-if (error) {
-    return nullptr;
-}
+    lineno++;
+    if(error) {
+        return NULL;
+    }
+    return makeProduct();
 
-return makeProduct();
 }
 
 std::string ProductClothingParser::categoryID()
 {
-return "clothing";
+    return "clothing";
 }
 
+
+/**
+ * Your job to fill in the code to create a new clothing product
+ * using the data members in this class and the parent ProductParser class
+ */
 Product* ProductClothingParser::makeProduct()
 {
-return new Clothing("clothing", prodName_, price_, qty_, brand_, size_);
+    Clothing* newProduct = new Clothing("clothing", prodName_, price_, qty_, brand_, size_);
+    return newProduct;
 }
 
-ProductMovieParser::ProductMovieParser() = default;
+
+
+ProductMovieParser::ProductMovieParser()
+{
+}
+
 
 Product* ProductMovieParser::parseSpecificProduct(std::string category,
-std::istream& is,
-bool& error,
-std::string& errorMsg,
-int& lineno)
+        std::istream& is,
+        bool& error,
+        std::string& errorMsg,
+        int& lineno)
 {
-std::string myline;
-std::getline(is, myline);
-std::stringstream ss3(myline);
-ss3 >> genre_;
-if (ss3.fail()) {
-    error = true;
-    errorMsg = "Unable to read genre";
-    return nullptr;
-}
+    string myline;
+    getline(is, myline);
+    stringstream ss3(myline);
+    ss3 >> genre_;
+    if(ss3.fail()) {
+        error = true;
+        errorMsg = "Unable to read genre";
+        return NULL;
+    }
 
-lineno++;
-std::getline(is, myline);
-std::stringstream ss4(myline);
-ss4 >> rating_;
-
-if (ss4.fail()) {
-    error = true;
-    errorMsg = "Unable to read rating";
-    return nullptr;
-}
+    lineno++;
+    getline(is, myline);
+    stringstream ss4(myline);
+    ss4 >> rating_;
+    if(ss4.fail()) {
+        error = true;
+        errorMsg = "Unable to read rating";
+        return NULL;
+    }
 #ifdef DEBUG
-std::cout << "Making product " << prodName_ << std::endl;
+    cout << "Making product " << prodName_ << endl;
 #endif
-lineno++;
-if (error) {
-    return nullptr;
-}
+    lineno++;
+    if(error) {
+        return NULL;
+    }
+    return makeProduct();
 
-return makeProduct();
 }
 
 std::string ProductMovieParser::categoryID()
 {
-return "movie";
+    return "movie";
 }
 
+
+/**
+ * Your job to fill in the code to create a new movie product
+ * using the data members in this class and the parent ProductParser class
+ */
 Product* ProductMovieParser::makeProduct()
 {
-return new Movie("movie", prodName_, price_, qty_, genre_, rating_);
+    Movie* newProduct = new Movie("movie", prodName_, price_, qty_, genre_, rating_);
+    return newProduct;
 }

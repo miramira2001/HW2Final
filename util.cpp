@@ -6,41 +6,37 @@
 #include <ctype.h>
 
 using namespace std;
-
-std::string toLower(const std::string &src)
+std::string convToLower(std::string src)
 {
-    std::string dest = src;
-    std::transform(dest.begin(), dest.end(), dest.begin(), ::tolower);
-    return dest;
+    std::transform(src.begin(), src.end(), src.begin(), ::tolower);
+    return src;
 }
 
-std::set<std::string> parseWords(const std::string &rawWords)
-{
-    std::set<std::string> words;
-    std::string currWord;
-    std::string trimmedRawWords = trim(rawWords);
+/** Complete the code to convert a string containing a rawWord
+    to a set of words based on the criteria given in the assignment **/
 
-    for (char c : trimmedRawWords) {
-        if (ispunct(c)) {
-            if (currWord.size() > 1) {
-                words.insert(toLower(currWord));
-                currWord.clear();
+std::set<std::string> parseStringToWords(string rawWords)
+{
+    std::set<std::string> wFind;
+    std::string wCurrent;
+    rawWords = trim(rawWords);
+
+    for (unsigned long i = 0; i < rawWords.size(); i++) {
+        if (ispunct(rawWords[i]) || isspace(rawWords[i])) {
+            if (!wCurrent.empty()) {
+                wFind.insert(convToLower(wCurrent));
+                wCurrent.clear();
             }
-        } else if (isspace(c)) {
-            if (currWord.size() > 1) {
-                words.insert(toLower(currWord));
-                currWord.clear();
-            }
-        } else {
-            currWord += c;
+        } 
+        else {
+            wCurrent += rawWords[i];
         }
     }
-
-    if (!currWord.empty() && currWord.size() > 1) {
-        words.insert(toLower(currWord));
+    if (!wCurrent.empty()) {
+        wFind.insert(convToLower(wCurrent));
     }
 
-    return words;
+    return wFind;
 }
 
 /**************************************************

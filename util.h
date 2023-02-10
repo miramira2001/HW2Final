@@ -5,41 +5,45 @@
 #include <iostream>
 #include <set>
 
+
+/** Complete the setIntersection and setUnion functions below
+ *  in this header file (since they are templates).
+ *  Both functions should run in time O(n*log(n)) and not O(n^2)
+ */
 template <typename T>
-std::set<T> setIntersection(std::set<T>& set1, std::set<T>& set2)
+std::set<T> setIntersection(std::set<T>& s1, std::set<T>& s2)
 {
-std::set<T> result;
-auto it1 = set1.begin();
-while (it1 != set1.end())
-{
-if (set2.find(*it1) != set2.end())
-{
-result.insert(*it1);
-}
-++it1;
-}
-return result;
+    std::set<T> nextSet;
+    std::set_intersection(s1.begin(), s1.end(),
+                          s2.begin(), s2.end(),
+                          std::inserter(nextSet, nextSet.begin()));
+    return nextSet;
 }
 
 template <typename T>
-std::set<T> setUnion(std::set<T>& set1, std::set<T>& set2)
+std::set<T> setUnion(std::set<T>& s1, std::set<T>& s2)
 {
-std::set<T> result = set1;
-auto it2 = set2.begin();
-while (it2 != set2.end())
-{
-result.insert(*it2);
-++it2;
+    std::set<T> nextUnion;
+    std::set_union(s1.begin(), s1.end(), s2.begin(), s2.end(), 
+                   std::inserter(nextUnion, nextUnion.begin()));
+    return nextUnion;
 }
-return result;
-}
+
+/***********************************************/
+/* Prototypes of functions defined in util.cpp */
+/***********************************************/
 
 std::string convToLower(std::string src);
 
-std::setstd::string parseStringToWords(std::string line);
+std::set<std::string> parseStringToWords(std::string line);
 
-std::string ltrim(std::string s);
+// Used from http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+// Removes any leading whitespace
+std::string &ltrim(std::string &s) ;
 
-std::string rtrim(std::string s);
+// Removes any trailing whitespace
+std::string &rtrim(std::string &s) ;
 
-std::string trim(std::string s);
+// Removes leading and trailing whitespace
+std::string &trim(std::string &s) ;
+#endif

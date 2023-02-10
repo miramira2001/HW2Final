@@ -5,105 +5,109 @@
 
 using namespace std;
 
-Movie::Movie(const std::string &category, const std::string &name, double price, int qty,
-const std::string &genre, const std::string &rating) :
-Product("movie", name, price, qty)
+Movie::Movie(const std::string category, const std::string name, double price, int qty,
+    const std::string genre, const std::string rating) :
+    Product("movie", name, price, qty)
 {
-rating_ = rating;
-genre_ = genre;
+    rating_ = rating;
+    genre_ = genre;
+} 
+
+Movie::~Movie()
+{
 }
 
-Movie::~Movie() = default;
-
-std::string Movie::getGenre() const
+std::string Movie::grabUserGenre() const
 {
-return genre_;
+    return genre_;
 }
 
-std::string Movie::getRating() const
+std::string Movie::grabUserRating() const
 {
-return rating_;
+    return rating_;
 }
 
-std::setstd::string Movie::keywords() const
+std::set<std::string> Movie::keywords() const
 {
-std::setstd::string movieWords;
+    std::set<std::string> wordsOfMovie;
 
-std::string currWord;
+    std::string CurrentW;
 
-// make the genre and rating lowercase
-for (char c : rating_)
-{
-    currWord += std::tolower(c);
+    unsigned i = 0;
+
+while (i < rating_.size()) {
+    CurrentW += tolower(rating_[i]);
+    ++i;
 }
-movieWords.insert(currWord);
-currWord.clear();
+wordsOfMovie.insert(CurrentW);
+CurrentW.clear();
 
-for (char c : genre_)
-{
-    currWord += std::tolower(c);
+i = 0;
+while (i < genre_.size()) {
+    CurrentW += tolower(genre_[i]);
+    ++i;
 }
-movieWords.insert(currWord);
-currWord.clear();
+wordsOfMovie.insert(CurrentW);
+CurrentW.clear();
 
-for (char c : name_)
-{
-    if ((std::ispunct(c) && (currWord.size() > 1)) || 
-        (std::isspace(c) && (currWord.size() > 1)))
-    {
-        movieWords.insert(currWord);
-        currWord.clear();
-    }  
-    else if (std::ispunct(c) || std::isspace(c))
-    {
-        currWord.clear();
+    for (unsigned i = 0; i < name_.size(); ++i) {
+        if ((ispunct(name_[i]) && (CurrentW.size() > 1)) || 
+            (isspace(name_[i]) && (CurrentW.size() > 1))) {
+            wordsOfMovie.insert(CurrentW);
+            CurrentW = "";
+        }  
+        else if (ispunct(name_[i]) || isspace(name_[i])) {
+            CurrentW = "";
+        }
+        else {
+            CurrentW += tolower(name_[i]);
+        }
     }
-    else
-    {
-        currWord += std::tolower(c);
+
+    if (CurrentW.size() > 1) {
+        wordsOfMovie.insert(CurrentW);
+        CurrentW = "";
     }
-}
-
-// check if there's any leftover string that needs to be added
-if (currWord.size() > 1)
-{
-    movieWords.insert(currWord);
-    currWord.clear();
-}
-
-return movieWords;
+    
+    return wordsOfMovie;
 
 }
 
-bool Movie::isMatch(std::vectorstd::string &searchTerms) const
+bool Movie::CorrectItem(std::vector<std::string>& searchTerms) const
 {
-for (const auto &searchTerm : searchTerms)
-{
-auto iter = std::find_if(keywords().begin(), keywords().end(),
-[&searchTerm](const auto &keyword)
-{
-return keyword == searchTerm;
-});
-if (iter != keywords().end())
-{
-return true;
-}
-}
-return false;
+    return false;
 }
 
 std::string Movie::displayString() const
 {
-std::ostringstream outputString;
-outputString << std::fixed << std::setprecision(2);
+    std::string display;
 
-int priceDecimalPointIndex = 0;
-std::string priceStr = std::to_string(price_);
+    int LowerPoint = 0;
+    string priceStr = to_string(price_);
 
-for (std::size_t i = 0; i < priceStr.size(); ++i)
-{
-    if (priceStr[i] == '.')
-    {
-        priceDecimalPointIndex = i;
-        break;
+    for (size_t i = 0; i < priceStr.size(); ++i) {
+    if (priceStr[i] == '.') {
+        LowerPoint = i;
     } 
+}
+
+    display += name_;
+    display += "\n";
+    display += "Genre: " + genre_ + " Rating: " + rating_;
+    display += "\n";
+    display += priceStr.substr(0, LowerPoint);
+    display += priceStr.substr(LowerPoint, 3);
+    display += ' ';
+    display += to_string(qty_);
+    display += " left.";
+
+    return display;
+}
+
+void Movie::dump(std::ostream& os) const
+{
+    os << std::fixed;
+    os << std::setprecision(2);
+    os << category_ << "\n" << name_ << "\n" << price_ << "\n" << qty_ << endl;
+    os << genre_ << "\n" << rating_ << endl;
+}

@@ -3,65 +3,113 @@
 void MyDataStore::addProduct(Product* p) {
     products_.insert(p);
 
-    // Add the product to the corresponding set in keywordMapping
     for (const auto& keyword : p->keywords()) {
-        auto it = keywordMapping.find(keyword);
-        if (it != keywordMapping.end()) {
-            it->second.insert(p);
-        } else {
-            std::set<Product*> new_set;
-            new_set.insert(p);
-            keywordMapping[keyword] = new_set;
-        }
-    }
+if (productMap.count(keyword)) {
+productMap[keyword].insert(p);
+} else {
+std::set<Product*> newProductSet;
+newProductSet.insert(p);
+productMap.emplace(keyword, newProductSet);
+}
+}
 }
 
 void MyDataStore::addUser(User* u) {
-    // Add the user to the mapping of usernames to user objects
-    users_map_[u->getName()] = u;
+    mapBuyer_.emplace(u->getName(), u);
 
-    // Initialize a deque for the new user's cart
-    std::deque<Product*> new_cart;
-    cart_[u] = new_cart;
+std::deque<Product*> emptyCart;
+shoppingCart_.emplace(u, emptyCart);
 }
 
 std::vector<Product*> MyDataStore::search(std::vector<std::string>& terms, int type) {
-    // type 0 is AND
-    // type 1 is OR
+
 
     std::vector<Product*> matches;
     std::set<Product*> intermediary;
-
-    if (type) {
-        // Perform an OR search
-        for (const auto& term : terms) {
-            auto it = keywordMapping.find(term);
-            if (it != keywordMapping.end()) {
-                intermediary = setUnion(intermediary, it->second);
-            }
-        }
-    } else {
-        // Perform an AND search
-        for (const auto& term : terms) {
-            auto it = keywordMapping.find(term);
-            if (it != keywordMapping.end()) {
-                /* If this is the first keyword, we need to initialize the intermediary
-                set, otherwise we keep finding the intersection of more and more sets */
-                if (intermediary.empty()) {
-                    intermediary = it->second;
-                } else {
-                    intermediary = setIntersection(intermediary, it->second);
-                }
-            }
-        }
+for (const auto& term : terms) {
+    auto var = productMap.find(term);
+    if (var == productMap.end()) {
+        continue;
     }
 
-    // Copy the intermediary set to the matches vector
-    for (const auto& product : intermediary) {
-        matches.push_back(product);
+    if (type) {
+        intermediary = setUnion(intermediary, var->second);
+    } else {
+        if (intermediary.empty()) {
+            intermediary = var->second;
+        } else {
+            intermediary = setIntersection(intermediary, var->second);
+        }
+    }
+}
+
+    for (Product* itr1: intermediary) {
+        matches.push_back(itr1);
     }
 
     return matches;
 }
+void MyDataStore::dump(std::ostream& ofile) {
+    ofile << "<products>\n";
+    for (Product* outputProduct: products_) {
+        outputProduct->dump(ofile);
+    }
+    ofile << "</products>\n";
+    ofile << "<users>\n";
+    for (std::pair<std::string, User*> outputUser: mapBuyer_) {
+        outputUser.second->dump(ofile);
+    }
+    ofile << "</users>\n";
+}
 
-void MyDataStore::addToCart(std::string username, Product*
+void MyDataStore::addToCart(std::string username, Product* toAdd) {
+    if (mapBuyer_.find(username) == mapBuyer_.end()) {
+        std::cout << "Invalid request" << std::endl;
+        return;
+    }
+    shoppingCart_.at(mapBuyer_.at(username)).push_back(toAdd);
+}
+
+void MyDataStore::buyCart(std::string username) {
+   
+    if (mapBuyer_.find(username) == mapBuyer_.end()) {
+        std::cout << "Invalid username" << std::endl;
+        return;
+    }
+
+    std::deque<Product*> fill;
+    for (Product* userShop: shoppingCart_.at(mapBuyer_.at(username))) {
+        if (userShop->getQty() == 0) {
+fill.push_back(userShop);
+        } else if (mapBuyer_.at(username)->getBalance() < userShop->getPrice()) {
+            fill.push_back(userShop);
+        } else {
+            mapBuyer_.at(username)->deductAmount(userShop->getPrice());
+            userShop->subtractQty(1);
+        }
+    }
+
+    shoppingCart_.at(mapBuyer_.at(username)) = fill;
+}
+
+void MyDataStore::viewCart(std::string username) {
+    if (mapBuyer_.find(username) == mapBuyer_.end()) {
+        std::cout << "Invalid username" << std::endl;
+        return;
+    }
+    std::deque<Product*>::iterator var = shoppingCart_.at(mapBuyer_.at(username)).begin();
+
+    int IndValue = 0;
+
+    while (var != shoppingCart_.at(mapBuyer_.at(username)).end()) {
+        std::cout << "Item " << IndValue + 1 << std::endl;
+        std::cout << (*var)->displayString();
+        std::cout << std::endl;
+        IndValue = IndValue + 1;
+        var = var + 1;
+    }
+    
+}
+
+
+
